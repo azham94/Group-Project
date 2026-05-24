@@ -1,14 +1,15 @@
 # ITT440: Group Project - Docker Containerized Socket Programming System
 **Course:** ITT440 - Network Programming  
 **Group:** NBCS2555B   
-**Name:** MOHD SYAHRUL AZHAM BIN MOHD SHAFIE  
-**Student ID:** 2024358831   
-**Name:** AHMAD HAFIY BIN MOHD AZRI  
-**Student ID:** 2024129101 
-**Name:** MUHD AMIR ASYRAF BIN MOHD TAHA  
-**Student ID:** 2025456114  
 **Lecturer:** Sir Shahadan Bin Saad  
-<br />
+
+| **Name:** |	MOHD SYAHRUL AZHAM BIN MOHD SHAFIE |
+|---------------------|------------------------------|
+| **Student ID:** |	2024358831 |
+| **Name:** |	AHMAD HAFIY BIN MOHD AZRI |
+| **Student ID:** |	2024129101 |
+| **Name:** |	MUHD AMIR ASYRAF BIN MOHD TAHA |
+| **Student ID:** |	2025456114 |
 
 # 1. Introduction <br />
 This project is developed for the ITT440 Network Programming course. The objective of this project is to implement a Docker-based containerized networking system using both Python and C socket programming. <br />
@@ -41,7 +42,7 @@ The objectives of this project are: <br />
 
 # 3. Software and Technologies Used
 
-| Software / | Technology	Function |
+| Software | Technology	Function |
 |---------------------|------------------------------|
 | Docker Desktop |	Container platform |
 | Docker Compose |	Multi-container management |
@@ -93,11 +94,11 @@ Communication flow: <br />
     CREATE DATABASE projectdb;
 
     USE projectdb;
-    
+
     CREATE TABLE scoreboard (
-            user VARCHAR(50) PRIMARY KEY,
-            points INT,
-            datetime_stamp DATETIME
+        user VARCHAR(50) PRIMARY KEY,
+        points INT,
+        datetime_stamp DATETIME
     );
 
     INSERT INTO scoreboard VALUES
@@ -121,73 +122,72 @@ The docker-compose.yml file is responsible for: <br />
 
       mysql_db:
 
-    image: mysql:5.7
+        image: mysql:5.7
 
-    container_name: mysql_db
+        container_name: mysql_db
 
-    restart: always
+        restart: always
 
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      TZ: Asia/Kuala_Lumpur
+        environment:
+          MYSQL_ROOT_PASSWORD: root
+          TZ: Asia/Kuala_Lumpur
 
-    ports:
-      - "3306:3306"
+        ports:
+          - "3306:3306"
 
-    volumes:
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+        volumes:
+          - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
 
-    networks:
-      - project_network
+        networks:
+          - project_network
 
       python_server:
 
-    build: ./python_server
+        build: ./python_server
 
-    container_name: python_server
+        container_name: python_server
 
-    depends_on:
-      - mysql_db
+        depends_on:
+          - mysql_db
 
-    ports:
-      - "5000:5000"
+        ports:
+          - "5000:5000"
 
-    networks:
-      - project_network
+        networks:
+          - project_network
 
       python_client:
 
-    build: ./python_client
+        build: ./python_client
 
-    container_name: python_client
+        container_name: python_client
 
-    depends_on:
-      - python_server
+        depends_on:
+          - python_server
 
-    networks:
-      - project_network
+        networks:
+          - project_network
 
       c_server:
 
-    build: ./c_server
+        build: ./c_server
 
-    container_name: c_server
+        container_name: c_server
 
-    ports:
-      - "6000:6000"
+        ports:
+          - "6000:6000"
 
-    networks:
-      - project_network
+        networks:
+          - project_network
 
       c_client:
-    build: ./c_client
-    container_name: c_client
-    depends_on:
-      - c_server
-    networks:
-      - project_network
-    networks:
+
+        build: ./c_client
+
+        container_name: c_client
+
       project_network:
+      
 # 8. Python Server Implementation
 
 The Python server acts as a TCP socket server. <br />
@@ -199,74 +199,75 @@ Functions of Python server: <br />
  <br />
  ## 8.1 Python server code:
      import socket
-    import time
-    import mysql.connector
-    from threading import Thread
+     import time
+     import mysql.connector
+     from threading import Thread
 
-    HOST = '0.0.0.0'
-    PORT = 5000
+     HOST = '0.0.0.0'
+     PORT = 5000
 
-    time.sleep(20)
+     time.sleep(20)
 
-    db = mysql.connector.connect(
-    host="mysql_db",
-        user="root",
-        password="root",
-        database="projectdb"
-    )
+     db = mysql.connector.connect(
+         host="mysql_db",
+         user="root",
+         password="root",
+         database="projectdb"
+     )
 
-    cursor = db.cursor()
+     cursor = db.cursor()
 
-    points = 0
+     points = 0
 
-    def update_db():
+     def update_db():
 
-    global points
+         global points
 
-    while True:
+         while True:
 
-        points += 10
+             points += 10
 
-        sql = """
-        UPDATE scoreboard
-        SET points=%s,
-            datetime_stamp=NOW()
-        WHERE user='python_user'
-        """
+             sql = """
+             UPDATE scoreboard
+             SET points=%s,
+                 datetime_stamp=NOW()
+             WHERE user='python_user'
+             """
 
-        cursor.execute(sql, (points,))
-        db.commit()
+             cursor.execute(sql, (points,))
+             db.commit()
 
-        print("Database Updated")
+             print("Database Updated")
 
-        time.sleep(30)
+             time.sleep(30)
 
-    Thread(target=update_db, daemon=True).start()
+     Thread(target=update_db, daemon=True).start()
 
-    server = socket.socket(socket.AF_INET,
-                       socket.SOCK_STREAM)
+     server = socket.socket(socket.AF_INET,
+                            socket.SOCK_STREAM)
 
-    server.bind((HOST, PORT))
+     server.bind((HOST, PORT))
 
-    server.listen(5)
+     server.listen(5)
 
-    print("Python Server Running...")
+     print("Python Server Running...")
 
-    while True:
+     while True:
 
-    client, addr = server.accept()
+         client, addr = server.accept()
 
-    cursor.execute("""
-    SELECT points
-    FROM scoreboard
-    WHERE user='python_user'
-    """)
+         cursor.execute("""
+         SELECT points
+         FROM scoreboard
+         WHERE user='python_user'
+         """)
 
-    result = cursor.fetchone()
+         result = cursor.fetchone()
 
-    client.send(str(result[0]).encode())
+         client.send(str(result[0]).encode())
 
-    client.close()
+         client.close()
+    
 # 9. Python Client Implementation
 
 The Python client connects to the Python server and requests the latest points. <br />
@@ -279,8 +280,7 @@ The Python client connects to the Python server and requests the latest points. 
     HOST = "python_server"
     PORT = 5000
 
-    client = socket.socket(socket.AF_INET,
-    socket.SOCK_STREAM)
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     client.connect((HOST, PORT))
 
@@ -289,6 +289,7 @@ The Python client connects to the Python server and requests the latest points. 
     print("Latest Point:", data.decode())
 
     client.close()
+    
 # 10. C Server Implementation
 
 The C server acts as another TCP socket server. <br />
@@ -302,33 +303,43 @@ Functions of C server: <br />
     #include <string.h>
     #include <unistd.h>
     #include <arpa/inet.h>
+
     int main() {
-    int server_fd, client_socket;
-    struct sockaddr_in server_addr;
-    char message[] = "200";
-    server_fd = socket(AF_INET,
-    SOCK_STREAM,
-    0);
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(6000);
-    server_addr.sin_addr.s_addr = INADDR_ANY;
-    bind(server_fd,
-    (struct sockaddr*)&server_addr,
-    sizeof(server_addr));
-    listen(server_fd, 5);
-    printf("C Server Running...\n");
-    while(1) {
-    client_socket = accept(server_fd,
-    NULL,
-    NULL);
-    send(client_socket,
-    message,
-    strlen(message),
-    0);
-    printf("Point Sent To Client\n");
-    close(client_socket);
-    }
-    return 0;
+
+        int server_fd, client_socket;
+
+        struct sockaddr_in server_addr;
+
+        char message[] = "200";
+
+        server_fd = socket(AF_INET, SOCK_STREAM, 0);
+
+        server_addr.sin_family = AF_INET;
+
+        server_addr.sin_port = htons(6000);
+
+        server_addr.sin_addr.s_addr = INADDR_ANY;
+
+        bind(server_fd, (struct sockaddr*)&server_addr, sizeof(server_addr));
+
+        listen(server_fd, 5);
+
+        printf("C Server Running...\n");
+
+        while(1) {
+
+            client_socket = accept(server_fd,
+                                   NULL,
+                                   NULL);
+
+            send(client_socket, message, strlen(message), 0);
+
+            printf("Point Sent To Client\n");
+
+            close(client_socket);
+        }
+
+        return 0;
     }
 
 # 11. C Client Implementation
@@ -345,20 +356,33 @@ The C client connects to the C server and receives latest points. <br />
 
     int main() {
 
-      int sock;
-      struct sockaddr_in server_addr;
-      struct hostent *host;
-      char buffer[1024] = {0};
-      host = gethostbyname("c_server");
-      sock = socket(AF_INET, SOCK_STREAM, 0);
-      server_addr.sin_family = AF_INET;
-      server_addr.sin_port = htons(6000);
-      memcpy(&server_addr.sin_addr, host->h_addr, host->h_length); connect(sock, (struct sockaddr*)&server_addr, sizeof(server_addr));
-      read(sock, buffer, 1024);
-      printf("Latest Point: %s\n", buffer);
-      close(sock);
+        int sock;
 
-      return 0;
+        struct sockaddr_in server_addr;
+
+        struct hostent *host;
+
+        char buffer[1024] = {0};
+
+        host = gethostbyname("c_server");
+
+        sock = socket(AF_INET, SOCK_STREAM, 0);
+
+        server_addr.sin_family = AF_INET;
+
+        server_addr.sin_port = htons(6000);
+
+        memcpy(&server_addr.sin_addr, host->h_addr, host->h_length);
+
+        connect(sock, (struct sockaddr*)&server_addr, sizeof(server_addr));
+
+        read(sock, buffer, 1024);
+
+        printf("Latest Point: %s\n", buffer);
+
+        close(sock);
+
+        return 0;
     }
 
 # 12. Dockerfiles
