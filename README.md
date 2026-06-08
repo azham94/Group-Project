@@ -2,9 +2,6 @@
 
 A Docker-based distributed system consisting of MySQL, Python TCP socket servers, and C TCP socket servers communicating through a shared Docker network.
 
-
-# Docker Multi-Container Socket Programming Project
-
 ## 1. Introduction
 
 Docker is a platform that enables developers to package applications and their dependencies into containers. Containers provide a lightweight and efficient environment that allows applications to run consistently across different systems.
