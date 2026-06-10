@@ -1,0 +1,97 @@
+version: '3'
+
+services:
+
+  mysql_db:
+    image: mysql:5.7
+    container_name: mysql_db
+
+    restart: always
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      TZ: Asia/Kuala_Lumpur
+
+    ports:
+      - "3306:3306"
+
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+    networks:
+      - project_network
+
+  python_server1:
+    build: ./python_server1
+
+    environment:
+      TZ: Asia/Kuala_Lumpur
+
+    ports:
+      - "5001:5001"
+
+    depends_on:
+      - mysql_db
+
+    networks:
+      - project_network
+
+  python_server2:
+    build: ./python_server2
+
+    environment:
+      TZ: Europe/London
+
+    ports:
+      - "5002:5002"
+
+    depends_on:
+      - mysql_db
+
+    networks:
+      - project_network
+
+  python_server3:
+    build: ./python_server3
+
+    environment:
+      TZ: Europe/Berlin
+
+    ports:
+      - "5003:5003"
+
+    depends_on:
+      - mysql_db
+
+    networks:
+      - project_network
+
+  c_server1:
+    build: ./c_server1
+
+    ports:
+      - "6001:6001"
+
+    networks:
+      - project_network
+
+  c_server2:
+    build: ./c_server2
+
+    ports:
+      - "6002:6002"
+
+    networks:
+      - project_network
+
+  c_server3:
+    build: ./c_server3
+
+    ports:
+      - "6003:6003"
+
+    networks:
+      - project_network
+
+networks:
+  project_network:
