@@ -1,17 +1,13 @@
-CREATE DATABASE projectdb;
+CREATE DATABASE IF NOT EXISTS itt440_db;
+USE itt440_db;
 
-USE projectdb;
-
-CREATE TABLE scoreboard (
-    user VARCHAR(50) PRIMARY KEY,
-    points INT,
-    datetime_stamp DATETIME
+CREATE TABLE IF NOT EXISTS game_scores (
+    user VARCHAR(50) NOT NULL PRIMARY KEY,
+    points INT NOT NULL DEFAULT 0,
+    datetime_stamp DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-INSERT INTO scoreboard VALUES
-('python_user1',0,NOW()),
-('python_user2',0,NOW()),
-('python_user3',0,NOW()),
-('c_user1',0,NOW()),
-('c_user2',0,NOW()),
-('c_user3',0,NOW());
+-- Insert starting rows if they do not exist yet
+INSERT INTO game_scores (user, points) VALUES ('fakhrusy', 0) ON DUPLICATE KEY UPDATE user=user;
+INSERT INTO game_scores (user, points) VALUES ('ariff', 0) ON DUPLICATE KEY UPDATE user=user;
+INSERT INTO game_scores (user, points) VALUES ('adib', 0) ON DUPLICATE KEY UPDATE user=user;

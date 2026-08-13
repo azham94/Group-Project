@@ -1,9 +1,6 @@
-FROM gcc:latest
-
+FROM ubuntu:22.04
+RUN apt-get update && apt-get install -y gcc libmysqlclient-dev
 WORKDIR /app
-
-COPY server.c .
-
-RUN gcc server.c -o server
-
-CMD ["./server"]
+COPY . .
+RUN gcc fakhrusy-c-server.c -o server -lmysqlclient -lpthread
+RUN gcc fakhrusy-c-client.c -o client
