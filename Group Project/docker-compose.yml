@@ -1,97 +1,73 @@
-version: '3'
+version: '3.8'
+
+networks:
+  game_network_bridge:
+    name: tournament_network_bridge
+    driver: bridge
 
 services:
-
-  mysql_db:
-    image: mysql:5.7
-    container_name: mysql_db
-
-    restart: always
-
+  database-service-mysql:
+    image: mysql:8.0
+    container_name: mysql-db
+    networks:
+      - game_network_bridge
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      TZ: Asia/Kuala_Lumpur
-
+      MYSQL_ROOT_PASSWORD: secret
+    volumes:
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "3306:3306"
 
-    volumes:
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
-
+  server-fakhrusy:
+    build: ./fakhrusy
+    container_name: server-fakhrusy
     networks:
-      - project_network
-
-  python_server1:
-    build: ./python_server1
-
-    environment:
-      TZ: Asia/Kuala_Lumpur
-
-    ports:
-      - "5001:5001"
-
+      - game_network_bridge
+    command: ./server
     depends_on:
-      - mysql_db
+      - database-service-mysql
 
+  client-fakhrusy:
+    build: ./fakhrusy
+    container_name: client-fakhrusy
     networks:
-      - project_network
-
-  python_server2:
-    build: ./python_server2
-
-    environment:
-      TZ: Europe/London
-
-    ports:
-      - "5002:5002"
-
+      - game_network_bridge
+    command: sh -c "gcc fakhrusy-c-client.c -o client && ./client"
     depends_on:
-      - mysql_db
+      - server-fakhrusy
 
+  server-ariff:
+    build: ./ariff
+    container_name: server-ariff
     networks:
-      - project_network
-
-  python_server3:
-    build: ./python_server3
-
-    environment:
-      TZ: Europe/Berlin
-
-    ports:
-      - "5003:5003"
-
+      - game_network_bridge
+    command: ./server
     depends_on:
-      - mysql_db
+      - database-service-mysql
 
+  client-ariff:
+    build: ./ariff
+    container_name: client-ariff
     networks:
-      - project_network
+      - game_network_bridge
+    command: sh -c "gcc ariff-c-client.c -o client && ./client"
+    depends_on:
+      - server-ariff
 
-  c_server1:
-    build: ./c_server1
-
-    ports:
-      - "6001:6001"
-
+  server-adib:
+    build: ./adib
+    container_name: server-adib
     networks:
-      - project_network
+      - game_network_bridge
+    command: python adib-python-server.py
+    depends_on:
+      - database-service-mysql
 
-  c_server2:
-    build: ./c_server2
-
-    ports:
-      - "6002:6002"
-
+  client-adib:
+    build: ./adib
+    container_name: client-adib
     networks:
-      - project_network
-
-  c_server3:
-    build: ./c_server3
-
-    ports:
-      - "6003:6003"
-
-    networks:
-      - project_network
-
-networks:
-  project_network:
+      - game_network_bridge
+    command: python adib-python-client.py
+    depends_on:
+      - server-adib
